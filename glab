@@ -1,0 +1,348 @@
+Step 1: Create Personal Access Token in GitLab
+
+Open your browser and go to your GitLab URL
+
+   https://gitlab.yourcompany.com
+Login through Okta (the normal way you always do)
+Once logged in, click your profile picture (top-right corner)
+Click "Edit profile" or "Preferences"
+In the left sidebar, find and click "Access Tokens"
+Click "Add new token" button
+Fill in the form:
+
+   Name: mac-vscode-git
+   Expiration date: (choose a date, e.g., 1 year from now)
+   
+   Select scopes (check these boxes):
+   ✅ api
+   ✅ read_repository  
+   ✅ write_repository
+Click "Create personal access token"
+CRITICAL: A token will appear like this:
+
+   glpat-abc123xyz789...
+Copy it immediately! You won't be able to see it again.
+
+Save it somewhere safe (password manager, notes app - you'll need it)
+
+
+Step 2: Configure Git on Your Mac
+Open Terminal app and run:
+# Set your name (use your real name)
+git config --global user.name "John Doe"
+
+# Set your email (use your work email)
+git config --global user.email "john.doe@company.com"
+
+# Tell Git to use macOS Keychain to save credentials
+git config --global credential.helper osxkeychain
+
+Step 3: Clone Repository (First Time Authentication)
+
+# Navigate to where you want your code
+cd ~/Documents  # or wherever you want
+
+# Clone your repository
+git clone https://gitlab.yourcompany.com/team-name/repo-name.git
+```
+
+**You'll be prompted:**
+```
+Username for 'https://gitlab.yourcompany.com': 
+```
+→ Type your **GitLab username** (usually your email or username)
+```
+Password for 'https://username@gitlab.yourcompany.com':
+ Paste your Personal Access Token (the one you copied in Step 1)
+
+Verify it's saved:
+
+# Try pulling code
+cd repo-name
+git pull
+```
+
+If it doesn't ask for credentials again → ✅ Success! Credentials are saved.
+
+---
+
+## Visual Summary
+```
+┌─────────────────────────────────────────┐
+│ 1. Browser → GitLab (login via Okta)   │
+│    Create Personal Access Token         │
+│    Copy token: glpat-xxxxx              │
+└─────────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────────┐
+│ 2. Terminal → Configure Git             │
+│    git config --global user.name "..."  │
+│    git config --global user.email "..." │
+│    git config credential.helper         │
+└─────────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────────┐
+│ 3. Terminal → Clone Repository          │
+│    git clone https://gitlab...          │
+│    Username: your-username              │
+│    Password: glpat-xxxxx (THE TOKEN!)   │
+└─────────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────────┐
+│ 4. macOS Keychain saves it              │
+│    No need to re-enter credentials!     │
+└─────────────────────────────────────────┘
+=====================================================
+Complete Workflow: Branch → Edit → Merge Request
+Step 1: Clone the Repository (First Time Only)
+
+Open VS Code
+Press Cmd + Shift + P
+Type: Git: Clone
+Paste your repository URL:
+
+   https://gitlab.yourcompany.com/team/lambda-repo.git
+
+Choose where to save (e.g., ~/Documents/Projects)
+Enter credentials:
+
+Username: your-gitlab-username
+Password: your-personal-access-token (NOT Okta password!)
+
+
+Click "Open" when prompted
+
+
+Step 2: Make Sure You Have Latest Code
+
+Look at bottom-left corner of VS Code → you'll see current branch name (probably main)
+Press Ctrl + Shift + P (Command Palette)
+Type: Git: Pull
+Press Enter
+
+This ensures you have the latest code from GitLab.
+
+Step 3: Create a New Branch
+
+Click the branch name in the bottom-left corner (it says main)
+A menu opens → Click "Create new branch from..."
+Type your branch name:
+
+   upgrade/python-3.13
+(or whatever name you want)
+4. Press Enter
+5. Select "main" as the source branch
+6. Press Enter
+✅ You're now on your new branch! You can see it in the bottom-left corner.
+
+Step 4: Make Your Changes (Edit Files)
+Now edit the files for your Python 3.13 upgrade:
+Option A: Manual Editing
+
+Open files in VS Code (e.g., main.tf, .gitlab-ci.yml)
+Make changes:
+In Terraform file (main.tf or similar):
+
+hcl   # Change this line:
+   runtime = "python3.11"
+   
+   # To this:
+   runtime = "python3.13"
+In GitLab CI file (.gitlab-ci.yml):
+yaml   # Change this:
+   image: python:3.11
+   
+   # To this:
+   image: python:3.13
+
+Save files (Cmd + S)
+
+Option B: Using the Upgrade Script
+
+Open Terminal in VS Code (Ctrl + `)
+Run the upgrade script:
+
+bash   # If you have the script
+   ./upgrade_to_python313.sh
+```
+
+---
+
+### **Step 5: Review Your Changes**
+
+1. Click the **Source Control icon** in left sidebar (or press `Ctrl + Shift + G`)
+2. You'll see all changed files listed
+3. Click on any file to see what changed (green = added, red = removed)
+
+---
+
+### **Step 6: Commit Your Changes**
+
+1. In the **Source Control panel**
+2. Look at the text box that says **"Message"**
+3. Type a commit message:
+```
+   Upgrade Lambda runtime to Python 3.13
+```
+4. Click the **checkmark (✓)** button above the message box
+
+✅ Your changes are now committed to your branch!
+
+---
+
+### **Step 7: Push Branch to GitLab**
+
+1. Click the **three dots (...)** in Source Control panel
+2. Select **"Push"**
+3. If it's the first push, you might see a popup → Click **"OK"** or **"Yes"**
+
+Or use this shortcut:
+- Bottom-left corner → Click the **↻ sync icon**
+
+✅ Your branch is now on GitLab!
+
+---
+
+### **Step 8: Create Merge Request (MR)**
+
+Now go to **GitLab in your browser**:
+
+1. Open your browser
+2. Go to your GitLab repository
+3. You'll see a yellow banner at the top:
+```
+   You recently pushed to branch: upgrade/python-3.13
+   [Create merge request]
+```
+4. Click **"Create merge request"** button
+
+5. Fill in the Merge Request form:
+   - **Title**: `Upgrade Lambda runtime to Python 3.13`
+   - **Description**: 
+```
+     ## Changes
+     - Updated Terraform runtime to python3.13
+     - Updated GitLab CI image to python:3.13
+     
+     ## Testing
+     - [ ] Tested locally
+     - [ ] CI pipeline passed
+```
+   - **Assignee**: Select your manager or reviewer
+   - **Target branch**: Should be `main` (default)
+
+6. Click **"Create merge request"**
+
+✅ Done! Your manager will get a notification to review.
+
+---
+
+## Visual Summary
+```
+┌─────────────────────────────────────┐
+│ 1. Clone repo (first time only)    │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│ 2. Pull latest code                 │
+│    (Cmd+Shift+P → Git: Pull)        │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│ 3. Create new branch                │
+│    (Click branch name bottom-left)  │
+│    Type: upgrade/python-3.13        │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│ 4. Edit files                       │
+│    - Change runtime to python3.13   │
+│    - Save files                     │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│ 5. Review changes                   │
+│    (Ctrl+Shift+G → See changes)     │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│ 6. Commit                           │
+│    Type message → Click ✓           │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│ 7. Push to GitLab                   │
+│    (... → Push or click sync icon)  │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│ 8. Create Merge Request             │
+│    (In GitLab browser)              │
+└─────────────────────────────────────┘
+
+Quick Reference Commands (All in VS Code)
+ActionHow to Do ItClone repoCmd+Shift+P → "Git: Clone"Pull latestCmd+Shift+P → "Git: Pull"Create branchClick branch name (bottom-left)See changesCtrl+Shift+G (Source Control)CommitType message → Click ✓Push... menu → PushOpen TerminalCtrl+`
+
+What Happens After You Create MR?
+
+Your manager gets notified
+They review your code (see what you changed)
+They might:
+
+Approve → Merge to main → Your changes go live
+Request changes → You make updates → Push again
+Ask questions → You discuss in MR comments
+
+
+
+
+If Your Manager Asks for Changes
+
+Stay on the same branch (upgrade/python-3.13)
+Make the requested changes in VS Code
+Commit again (same process: message → ✓)
+Push again (... → Push)
+The Merge Request automatically updates with your new changes!
+
+
+Common Questions
+Q: Can I work on other things while waiting for MR approval?
+A: Yes! Just switch back to main branch:
+
+Click branch name (bottom-left)
+Select main
+Create a new branch for other work
+
+Q: What if I made a mistake?
+A: Before pushing:
+
+Just edit the file again and commit
+Or undo: Cmd+Shift+P → "Git: Undo Last Commit"
+
+Q: Do I delete the branch after merge?
+A: Usually yes, but after it's merged. GitLab will offer to delete it automatically.
+
+Checklist for Your Manager's Requirements
+
+ Created new branch (not working on main)
+ Made changes on the branch
+ Committed changes
+ Pushed branch to GitLab
+ Created Merge Request
+ Assigned reviewer (your manager)
+
+Follow this process for each Lambda repository you need to upgrade!
+Does this cover everything your manager asked for? Let me know if you need clarification on any step! 🎯
+
+
+
+=============
+# 1. Check your Terraform is valid
+cd terraform/
+terraform init
+terraform validate
+terraform plan
+
+# 2. Make sure there are no errors
+# 3. Review the plan output
+===================
